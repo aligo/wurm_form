@@ -1,13 +1,75 @@
-WurmForm
-========
+= WurmForm
 
-Introduction goes here.
+== Usage
+
+1. Download and install the plugin:
+    
+    rails plugin install git@github.com:aligo/wurm-form.git
+
+2. Add this this one line to the controller.
+
+    class UsersController < ApplicationController
+      wurm_ajax_validate :user # => set the name of model to validate
+    end
+    
+3. The routes for the validate actions.
+
+    resources :users do
+      collection do
+        post 'validate'
+      end
+    end
+    
+  Or 
+    
+    post 'users/validate'
+    
+4. And validation rule in the model
+    
+    class User < ActiveRecord::Base
+      validates :username,  :presence => true,
+                            :uniqueness => true
+      validates :email,     :presence => true,
+                            :uniqueness => true,
+                            :format   => { :with => /^([^@\s]+)@((?:[-a-z0-9]+\.)+[a-z]{2,})$/i }
+    end
+    
+5. Example with jQuery
+    
+    // Allows for AJAX
+    // Taken from http://henrik.nyh.se/2008/05/rails-authenticity-token-with-jquery
+    $(document).ajaxSend(function(event, request, settings) {
+        if (typeof(AUTH_TOKEN) == "undefined") return;
+        // settings.data is a serialized string like "foo=bar&baz=boink" (or null)
+        settings.data = settings.data || "";
+        settings.data += (settings.data ? "&" : "") + "authenticity_token=" + encodeURIComponent(AUTH_TOKEN);
+    });
+
+    // General delay function, used to watch keyups,
+    // Taken from: http://stackoverflow.com/questions/1909441/jquery-keyup-delay
+    var delay = (function(){
+      var timer = 0;
+      return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+      };
+    })();
+    
+    $('#user_username, #user_email').keyup(function(){
+        var obj = this;
+        delay(function() {
+            var postData = {}; # => "{'user[username]' => 'input value'}", or a set of input "{'user[username]' => 'username', 'user[email]' => 'email', }"
+            postData[$(obj).attr('name')] = $(obj).val();
+            $.post(form_url + '/validate', postData, function(data) {
+                    alert(data); # => "{'username' => { 'valid' => true }}' or '{'username' => { 'valid' => false, 'message' => 'error message' }}"
+                }, 'json');
+        }, 600);
+    });
+    
+    
 
 
-Example
-=======
-
-Example goes here.
 
 
-Copyright (c) 2010 [name of plugin creator], released under the MIT license
+== License
+Copyright (c) 2010 aligo - http://aligo.me, released under the MIT license
