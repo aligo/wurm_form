@@ -14,7 +14,7 @@ module WurmForm
           if fields.blank?
             render :nothing => true
           else
-            model = Object.const_get(form.to_s.capitalize)
+            model = Object.const_get(form.to_s.camelize)
             validity = model.new(fields)
             validity.valid?
             valid = {}

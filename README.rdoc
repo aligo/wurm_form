@@ -4,7 +4,7 @@
 
 1. Download and install the plugin:
     
-    rails plugin install git@github.com:aligo/wurm-form.git
+    rails plugin install git@github.com:aligo/wurm_form.git
 
 2. Add this this one line to the controller.
 
@@ -37,12 +37,17 @@
 5. Example with jQuery
     
     // Allows for AJAX
-    // Taken from http://henrik.nyh.se/2008/05/rails-authenticity-token-with-jquery
+    // See more: http://henrik.nyh.se/2008/05/rails-authenticity-token-with-jquery
+    var csrf_token, csrf_param;
     $(document).ajaxSend(function(event, request, settings) {
-        if (typeof(AUTH_TOKEN) == "undefined") return;
-        // settings.data is a serialized string like "foo=bar&baz=boink" (or null)
-        settings.data = settings.data || "";
-        settings.data += (settings.data ? "&" : "") + "authenticity_token=" + encodeURIComponent(AUTH_TOKEN);
+        if (csrf_token) {
+            settings.data = settings.data || "";
+            settings.data += (settings.data ? "&" : "") + csrf_param + "=" + encodeURIComponent(csrf_token);
+        }
+    });
+    $(function(){
+        csrf_token = $('meta[name=csrf-token]').attr('content');
+        csrf_param = $('meta[name=csrf-param]').attr('content');
     });
 
     // General delay function, used to watch keyups,
