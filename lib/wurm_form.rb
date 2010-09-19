@@ -10,7 +10,7 @@ module WurmForm
     module ClassMethods
       def wurm_ajax_validate(form)
         define_method(:validate) do
-          fields = params[:user]
+          fields = params[form]
           if fields.blank?
             render :nothing => true
           else
