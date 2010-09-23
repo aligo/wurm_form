@@ -15,8 +15,14 @@ module WurmForm
             render :nothing => true
           else
             model = Object.const_get(form.to_s.camelize)
-            validity = model.new(fields)
-            validity.valid?
+            if fields[:id]
+              validity = model.find(fields[:id])
+              fields.delete(:id)
+              validity.update_attributes(fields)
+            else
+              validity = model.new(fields)
+              validity.valid?
+            end
             valid = {}
             fields.each do | field, values |
               if validity.errors[field].blank?
