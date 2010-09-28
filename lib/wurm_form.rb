@@ -14,11 +14,13 @@ module WurmForm
           if fields.blank?
             render :nothing => true
           else
-            model = Object.const_get(form.to_s.camelize)
+            model = form.to_s.gsub('_', '/').camelize.split('::').reduce(Object){|cls, c| cls.const_get(c) }
+            #model = Object.const_get(form.to_s.camelize)
             if fields[:id]
               validity = model.find(fields[:id])
               fields.delete(:id)
-              validity.update_attributes(fields)
+              validity.attributes = fields
+              validity.valid?
             else
               validity = model.new(fields)
               validity.valid?
