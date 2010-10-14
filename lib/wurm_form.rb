@@ -8,7 +8,7 @@ module WurmForm
     end
     
     module ClassMethods
-      def wurm_ajax_validate(form)
+      def wurm_ajax_validate(form, callback = false)
         define_method(:validate) do
           fields = params[form]
           if fields.blank?
@@ -19,12 +19,18 @@ module WurmForm
             if fields[:id]
               validity = model.find(fields[:id])
               fields.delete(:id)
-              validity.attributes = fields
-              validity.valid?
+              if validity
+                validity.attributes = fields
+              else
+                validity = model.new(fields)
+              end
             else
               validity = model.new(fields)
-              validity.valid?
             end
+            if callback
+              eval callback
+            end
+            validity.valid?
             valid = {}
             fields.each do | field, values |
               if validity.errors[field].blank?
